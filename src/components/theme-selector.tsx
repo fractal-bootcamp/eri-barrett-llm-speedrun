@@ -1,16 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { themes, themeList } from '../lib/terminal-themes';
 import { TerminalTheme } from '../types/terminal-types';
 
 interface ThemeSelectorProps {
     onSelectTheme: (theme: TerminalTheme) => void;
+    onResetMessages: () => void;
+    onUpdatePrompt: (prompt: string) => void;
     currentThemeId?: string;
 }
 
-export default function ThemeSelector({ onSelectTheme, currentThemeId }: ThemeSelectorProps) {
-    const [selectedThemeId, setSelectedThemeId] = useState(currentThemeId || 'retroTerminal');
+export default function ThemeSelector({
+    onSelectTheme,
+    onResetMessages,
+    onUpdatePrompt,
+    currentThemeId,
+}: ThemeSelectorProps) {
+    const [selectedThemeId, setSelectedThemeId] = useState(currentThemeId || 'retro-terminal');
     const [customPrompt, setCustomPrompt] = useState('');
     const [isCustomPrompt, setIsCustomPrompt] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +25,9 @@ export default function ThemeSelector({ onSelectTheme, currentThemeId }: ThemeSe
     const [modelMaxTokens, setModelMaxTokens] = useState(1000);
     const [provider, setProvider] = useState<'openai' | 'anthropic'>('openai');
     const [model, setModel] = useState('gpt-4o');
+
+    // Add our new theme to the available options
+    const allThemeOptions = Object.values(themes);
 
     // Load the current theme's settings when the selected theme changes
     useEffect(() => {
@@ -79,9 +89,9 @@ export default function ThemeSelector({ onSelectTheme, currentThemeId }: ThemeSe
                             onChange={(e) => setSelectedThemeId(e.target.value)}
                             className="w-full px-3 py-2 bg-gray-800 text-white rounded-md"
                         >
-                            {Object.keys(themes).map((themeId) => (
-                                <option key={themeId} value={themeId}>
-                                    {themes[themeId].name}
+                            {allThemeOptions.map((theme) => (
+                                <option key={theme.id} value={theme.id}>
+                                    {theme.name}
                                 </option>
                             ))}
                         </select>
