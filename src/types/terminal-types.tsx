@@ -1,7 +1,4 @@
-import { TerminalStyle } from "react-terminal-ui";
-
 // * Terminal Style
-
 export type TerminalStyle = {
     gridColor: string
     background: string
@@ -63,6 +60,9 @@ export interface ThemedTerminalWindowProps {
     initialPosition: { x: number; y: number };
     zIndex: number;
     isActive: boolean;
+    savedMessages?: TerminalMessage[];
+    savedScrollPosition?: number;
+    initialMessage?: string;
     onClose: () => void;
     onFullscreenChange: (isFullscreen: boolean) => void;
     onFocus: () => void;
