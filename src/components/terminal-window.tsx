@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ThemedTerminalWindowProps, TerminalMessage } from '../types/terminal-types';
 import { v4 as uuidv4 } from 'uuid';
+import { generateLLMResponse, LLMResponse } from '../lib/llm-service';
 // Simple import of the motion component
 import { motion } from 'framer-motion';
 
@@ -43,18 +44,28 @@ export const TerminalWindow = ({
     });
     const [dimensions, setDimensions] = useState({ width: 380, height: 500 });
     const [position, setPosition] = useState(initialPosition);
+    const [isLoading, setIsLoading] = useState(false);
+    const [streamedResponse, setStreamedResponse] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     // Refs
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<HTMLDivElement>(null);
 
+    // Reset error when user types
+    useEffect(() => {
+        if (error && inputValue) {
+            setError(null);
+        }
+    }, [inputValue, error]);
+
     // Scroll to bottom when messages change
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [messages]);
+    }, [messages, streamedResponse]);
 
     // Restore saved scroll position
     useEffect(() => {
@@ -110,10 +121,10 @@ export const TerminalWindow = ({
     };
 
     // Handle message submission
-    const handleSubmitMessage = (e: React.FormEvent) => {
+    const handleSubmitMessage = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (inputValue.trim() === '') return;
+        if (inputValue.trim() === '' || isLoading) return;
 
         // Add user message
         const userMessage: TerminalMessage = {
@@ -124,18 +135,56 @@ export const TerminalWindow = ({
         };
 
         setMessages(prev => [...prev, userMessage]);
-        setInputValue('');
 
-        // Mock API call for system response
-        setTimeout(() => {
-            const systemResponse: TerminalMessage = {
-                id: uuidv4(),
-                content: `Response to: ${inputValue}`,
-                sender: 'system',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, systemResponse]);
-        }, 1000);
+        // Clear input and start loading
+        const userPrompt = inputValue;
+        setInputValue('');
+        setIsLoading(true);
+        setStreamedResponse('');
+        setError(null);
+
+        // Filter out any initial welcome message for the LLM context
+        const messageHistory = messages.filter(msg =>
+            !(msg.sender === 'system' && messages.indexOf(msg) === 0 && initialMessage === msg.content)
+        );
+
+        // Call the LLM service
+        try {
+            await generateLLMResponse(
+                userPrompt,
+                messageHistory,
+                theme.systemPrompt,
+                theme.llm,
+                // Handle streaming tokens
+                (token: string) => {
+                    setStreamedResponse(prev => prev + token);
+                },
+                // Handle completion
+                (response: LLMResponse) => {
+                    setIsLoading(false);
+                    // Add the complete message
+                    const systemResponse: TerminalMessage = {
+                        id: response.id || uuidv4(),
+                        content: response.content,
+                        sender: 'system',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, systemResponse]);
+                    setStreamedResponse('');
+                },
+                // Handle errors
+                (error: Error) => {
+                    setIsLoading(false);
+                    setError(error.message);
+                    console.error('LLM Error:', error);
+                }
+            );
+        } catch (err) {
+            setIsLoading(false);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            setError(errorMessage);
+            console.error('Error calling LLM service:', err);
+        }
     };
 
     // Export chat function
@@ -277,7 +326,7 @@ export const TerminalWindow = ({
                     ></div>
                 </div>
                 <div className="flex-1 text-center text-sm font-mono truncate" style={{ color: styles.headerText }}>
-                    {theme.name}
+                    {theme.name} - {theme.llm.model}
                 </div>
                 <button
                     className="text-xs px-2 py-1 rounded hover:opacity-80"
@@ -316,6 +365,63 @@ export const TerminalWindow = ({
                         <div className="whitespace-pre-wrap break-words">{message.content}</div>
                     </div>
                 ))}
+
+                {/* Streaming response */}
+                {streamedResponse && (
+                    <div
+                        className="p-3 rounded-md mr-auto"
+                        style={{
+                            backgroundColor: styles.messageBackground,
+                            color: styles.messageText,
+                            border: `1px solid ${styles.messageBorder}`,
+                            maxWidth: '80%'
+                        }}
+                    >
+                        <div className="text-xs mb-1" style={{ color: styles.timestampText }}>
+                            {theme.senderName} | {new Date().toLocaleTimeString()}
+                        </div>
+                        <div className="whitespace-pre-wrap break-words">{streamedResponse}</div>
+                    </div>
+                )}
+
+                {/* Loading indicator */}
+                {isLoading && !streamedResponse && (
+                    <div
+                        className="p-3 rounded-md mr-auto"
+                        style={{
+                            backgroundColor: styles.messageBackground,
+                            color: styles.messageText,
+                            border: `1px solid ${styles.messageBorder}`,
+                            maxWidth: '80%'
+                        }}
+                    >
+                        <div className="text-xs mb-1" style={{ color: styles.timestampText }}>
+                            {theme.senderName} | {new Date().toLocaleTimeString()}
+                        </div>
+                        <div className="animate-pulse">Thinking...</div>
+                    </div>
+                )}
+
+                {/* Error message */}
+                {error && (
+                    <div
+                        className="p-3 rounded-md mr-auto"
+                        style={{
+                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                            color: '#ef4444',
+                            border: '1px solid #ef4444',
+                            maxWidth: '80%'
+                        }}
+                    >
+                        <div className="text-xs mb-1" style={{ color: '#ef4444' }}>
+                            System | {new Date().toLocaleTimeString()}
+                        </div>
+                        <div className="whitespace-pre-wrap break-words">
+                            Error: {error}
+                        </div>
+                    </div>
+                )}
+
                 <div ref={messagesEndRef} />
             </div>
 
@@ -334,24 +440,26 @@ export const TerminalWindow = ({
                     onChange={(e) => setInputValue(e.target.value)}
                     className="flex-1 px-3 py-2 rounded-l-md focus:outline-none"
                     placeholder="Type your message..."
+                    disabled={isLoading}
                     style={{
                         backgroundColor: styles.inputBackground,
                         border: `1px solid ${styles.inputBorder}`,
                         color: styles.inputText,
-                        borderRight: 'none'
+                        borderRight: 'none',
+                        opacity: isLoading ? 0.7 : 1
                     }}
                 />
                 <button
                     type="submit"
                     className="px-4 py-2 rounded-r-md flex items-center justify-center"
-                    disabled={!inputValue.trim()}
+                    disabled={isLoading || !inputValue.trim()}
                     style={{
                         backgroundColor: styles.buttonBackground,
                         color: styles.buttonText,
-                        opacity: !inputValue.trim() ? 0.7 : 1
+                        opacity: (isLoading || !inputValue.trim()) ? 0.7 : 1
                     }}
                 >
-                    Send
+                    {isLoading ? 'Sending...' : 'Send'}
                 </button>
             </form>
 

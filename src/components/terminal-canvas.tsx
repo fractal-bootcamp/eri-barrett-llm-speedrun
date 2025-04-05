@@ -27,13 +27,13 @@ export const TerminalCanvas = () => {
         userSenderName: 'User',
         asciiArt: '',
         llm: {
-            id: 'gpt-4',
+            id: 'gpt-4o',
             provider: 'openai',
-            model: 'gpt-4',
+            model: 'gpt-4o',
             temperature: 0.7,
             maxTokens: 1000
         },
-        systemPrompt: 'You are a helpful assistant.'
+        systemPrompt: 'You are a helpful AI assistant.'
     }) => {
         const id = uuidv4();
         const position = {
@@ -83,7 +83,11 @@ export const TerminalCanvas = () => {
     }, []);
 
     return (
-        <div className="fixed inset-0 w-full h-full bg-grid-pattern">
+        <div className="fixed inset-0 w-full h-full" style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.01) 1px, transparent 1px), 
+                               linear-gradient(90deg, rgba(0, 0, 0, 0.01) 1px, transparent 1px)`,
+            backgroundSize: '20px 20px'
+        }}>
             <button
                 className="absolute top-4 right-4 px-4 py-2 bg-blue-500 text-white rounded-md"
                 onClick={() => addTerminal()}
@@ -99,7 +103,7 @@ export const TerminalCanvas = () => {
                     initialPosition={terminal.position}
                     zIndex={terminal.zIndex}
                     isActive={terminal.isActive}
-                    initialMessage="Welcome to the chat! Type a message to get started."
+                    initialMessage="Welcome to the terminal! Type a message to get started."
                     onClose={() => handleTerminalClose(terminal.id)}
                     onFullscreenChange={(isFullscreen) => handleFullscreenChange(terminal.id, isFullscreen)}
                     onFocus={() => handleTerminalFocus(terminal.id)}
