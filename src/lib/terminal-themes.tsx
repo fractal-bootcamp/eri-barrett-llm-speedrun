@@ -1,5 +1,5 @@
 import { TerminalTheme } from '../types/terminal-types';
-import { RetroGreen, CyberpunkNeon, MonochromeMinimal, OceanBlue } from './terminal-styles';
+import { RetroGreen, CyberpunkNeon, MonochromeMinimal, OceanBlue, RetroBeige } from './terminal-styles';
 
 // ===================================
 // System Prompts
@@ -33,21 +33,29 @@ export const themes: Record<string, TerminalTheme> = {
         senderName: 'SYSTEM',
         userSenderName: 'USER',
         asciiArt: `
-  _____     _             _____                   _           _ 
- |  __ \\   | |           |_   _|                 (_)         | |
- | |__) |__| |_ _ __ ___   | |  ___ _ __ _ __ ___ _ _ __   __| |
- |  _  // _\` | '__/ _ \\  | | / _ \\ '__| '__/ _ \\ | '_ \\ / _\` |
- | | \\ \\ (_| | | | (_) | | ||  __/ |  | | |  __/ | | | | (_| |
- |_|  \\_\\__,_|_|  \\___/  \\_/ \\___|_|  |_|  \\___|_|_| |_|\\__,_|
-        `,
+  ╔══════════════════════════════════════════════════════════════╗
+  ║                                                              ║
+  ║   ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗   ║
+  ║   ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗  ║
+  ║      ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║  ║
+  ║      ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║  ║
+  ║      ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║  ║
+  ║      ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝  ║
+  ║                                                              ║
+  ╚══════════════════════════════════════════════════════════════╝
+  `,
         llm: {
             id: 'retro-terminal',
             provider: 'openai',
-            model: 'gpt-4o',
+            model: 'gpt-3.5-turbo',
             temperature: 0.7,
-            maxTokens: 1200
+            maxTokens: 500
         },
-        systemPrompt: HackerSystemPrompt
+        systemPrompt: `You are TERMINAL, a retro-style AI assistant that responds in a terse, technical manner.
+        - Keep responses brief and to the point
+        - Use occasional command-line style formatting
+        - Add relevant technical details when appropriate
+        - Respond with a slightly digital, technical personality`
     },
 
     // Cyberpunk Terminal
@@ -58,25 +66,30 @@ export const themes: Record<string, TerminalTheme> = {
         senderName: 'NEURAL-NET',
         userSenderName: 'NETRUNNER',
         asciiArt: `
-   _____      _                                _    
-  / ____|    | |                              | |   
- | |    _   _| |__   ___ _ __ _ __  _   _ _ __| | __
- | |   | | | | '_ \\/ _ \\ '__| '_ \\| | | | '__| |/ /
- | |___| |_| | |_) |  __/ |  | |_) | |_| | |  |   < 
-  \\_____\\__, |_.__/ \\___|_|  | .__/ \\__,_|_|  |_|\\_\\
-         __/ |               | |                    
-        |___/                |_|                    
-        `,
+  ╔══════════════════════════════════════════════════════════════╗
+  ║                                                              ║
+  ║   ███╗   ██╗███████╗ ██████╗ ███╗   ██╗                      ║
+  ║   ████╗  ██║██╔════╝██╔═══██╗████╗  ██║                      ║
+  ║   ██╔██╗ ██║█████╗  ██║   ██║██╔██╗ ██║                      ║
+  ║   ██║╚██╗██║██╔══╝  ██║   ██║██║╚██╗██║                      ║
+  ║   ██║ ╚████║███████╗╚██████╔╝██║ ╚████║                      ║
+  ║   ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝                      ║
+  ║                                        NEURAL INTERFACE v2.0  ║
+  ╚══════════════════════════════════════════════════════════════╝
+  `,
         llm: {
             id: 'cyberpunk-terminal',
-            provider: 'anthropic',
-            model: 'claude-3-opus-20240229',
-            temperature: 0.8,
-            maxTokens: 1500
+            provider: 'openai',
+            model: 'gpt-3.5-turbo',
+            temperature: 0.9,
+            maxTokens: 1000
         },
-        systemPrompt: `You are an AI from a cyberpunk future. Respond with references to cybernetic enhancements, 
-        megacorporations, and dystopian tech. Use techno-slang and cyberpunk terminology while still being helpful.
-        Keep responses concise but immersive in cyberpunk aesthetic.`
+        systemPrompt: `You are NEON, a cyberpunk-themed AI with an edgy, futuristic personality.
+        - Use cyberpunk slang and references
+        - Adopt a slightly rebellious, anti-establishment tone
+        - Include references to technology, hacking, and digital systems
+        - Occasionally mention megacorps and dystopian elements
+        - Keep your attitude cool but helpful`
     },
 
     // Minimal Terminal
@@ -156,6 +169,36 @@ export const themes: Record<string, TerminalTheme> = {
             maxTokens: 1000
         },
         systemPrompt: SupportSystemPrompt
+    },
+
+    // Retro Beige Terminal
+    retroBeigeTerminal: {
+        id: 'retrobeige',
+        name: 'Archive Terminal',
+        styles: RetroBeige,
+        senderName: 'SYSTEM',
+        userSenderName: 'USER',
+        asciiArt: `
+   █████╗ ██████╗  ██████╗██╗  ██╗██╗██╗   ██╗███████╗
+  ██╔══██╗██╔══██╗██╔════╝██║  ██║██║██║   ██║██╔════╝
+  ███████║██████╔╝██║     ███████║██║██║   ██║█████╗  
+  ██╔══██║██╔══██╗██║     ██╔══██║██║╚██╗ ██╔╝██╔══╝  
+  ██║  ██║██║  ██║╚██████╗██║  ██║██║ ╚████╔╝ ███████╗
+  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝  ╚══════╝
+                                                     v2.3
+        `,
+        llm: {
+            id: 'retrobeige',
+            provider: 'openai',
+            model: 'gpt-3.5-turbo',
+            temperature: 0.5,
+            maxTokens: 500
+        },
+        systemPrompt: `You are ARCHIVE, a minimalist knowledge terminal with a calm, professional demeanor.
+        - Provide concise, factual responses
+        - Use clear, straightforward language
+        - Maintain a helpful, efficient tone
+        - Focus on accuracy and clarity in all interactions`
     }
 };
 

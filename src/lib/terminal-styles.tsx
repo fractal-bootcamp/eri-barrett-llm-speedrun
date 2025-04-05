@@ -1,4 +1,3 @@
-
 import { TerminalStyle } from '../types/terminal-types';
 
 export const RetroGreen: TerminalStyle = {
@@ -24,6 +23,31 @@ export const RetroGreen: TerminalStyle = {
     messageBorder: '#32cd32',
     timestampText: '#1f631f',
     resizeHandleBorder: '#32cd32'
+};
+
+export const RetroBeige: TerminalStyle = {
+    gridColor: '#d6d3c3',
+    background: '#e9e6d8',
+    border: '#d2cfc0',
+    headerBackground: '#e9e6d8',
+    headerBorder: '#d2cfc0',
+    text: '#5c574a',
+    headerText: '#5c574a',
+    dotColor: '#5c574a',
+    inputBackground: '#f1eee1',
+    inputBorder: '#d2cfc0',
+    inputText: '#5c574a',
+    inputPlaceholder: '#a29e8c',
+    buttonBackground: '#e2bd8f',
+    buttonHover: '#d3a978',
+    buttonText: '#5c574a',
+    messageBackground: '#f1eee1',
+    messageText: '#5c574a',
+    userMessageBackground: '#e2dfcf',
+    userMessageText: '#5c574a',
+    messageBorder: '#d2cfc0',
+    timestampText: '#928e7c',
+    resizeHandleBorder: '#d2cfc0'
 };
 
 export const CyberpunkNeon: TerminalStyle = {
